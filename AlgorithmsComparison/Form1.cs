@@ -185,5 +185,16 @@ namespace AlgorithmsComparison
                 graphics.DrawLine(pathPen, graph.vertices[start], graph.vertices[end]);
             }
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            currentGraph = new Graph.Graph(pictureBox1.Height, pictureBox1.Width);
+            pictureBox1.Invalidate();
+            pictureBox2.Invalidate();
+            button2.Visible = true;
+            label2.Visible = true;
+            textBox3.Visible = true;
+            textBox4.Visible = true;
+        }
     }
 }

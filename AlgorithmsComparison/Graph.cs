@@ -85,6 +85,61 @@ namespace Graph
             adjacencyMatrix = AdjacencyMatrix;
         }
 
+        public Graph(int height, int width)
+        {
+            List<Point> Vertices = new List<Point>();
+
+            int x = 5;
+            int y = 5;
+            int rows = 0;
+            int cols = 0;
+            while (y < height)
+            {
+                rows = 0;
+                while (x + 20 < width)
+                {
+                    Vertices.Add(new Point(x, y));
+                    x = x + 20;
+                    rows++;
+                }
+                x = 5;
+                y += 20;
+                cols++;
+            }
+
+            vertices = Vertices.ToArray();
+
+            double[,] AdjacencyMatrix = new double[cols*rows, cols*rows];
+
+            for (int i = 0; i < cols; i++)
+            {
+                for (int j = 0; j < rows; j++)
+                {
+                    int sourceIndex = i * rows + j;
+
+                    // Connect with right neighbor
+                    if (j + 1 < rows)
+                    {
+                        int destinationIndex = i * rows + (j + 1);
+                        double distance = Math.Sqrt(Math.Pow(vertices[sourceIndex].X - vertices[destinationIndex].X, 2) + Math.Pow(vertices[sourceIndex].Y - vertices[destinationIndex].Y, 2));
+                        AdjacencyMatrix[sourceIndex, destinationIndex] = distance;
+                        AdjacencyMatrix[destinationIndex, sourceIndex] = distance;
+                    }
+
+                    // Connect with bottom neighbor
+                    if (i + 1 < cols)
+                    {
+                        int destinationIndex = (i + 1) * rows + j;
+                        double distance = Math.Sqrt(Math.Pow(vertices[sourceIndex].X - vertices[destinationIndex].X, 2) + Math.Pow(vertices[sourceIndex].Y - vertices[destinationIndex].Y, 2));
+                        AdjacencyMatrix[sourceIndex, destinationIndex] = distance;
+                        AdjacencyMatrix[destinationIndex, sourceIndex] = distance;
+                    }
+                }
+            }
+
+            adjacencyMatrix = AdjacencyMatrix;
+        }
+
         public List<List<int>> Dejkstra(int source, int destination)
         {
             int n = adjacencyMatrix.GetLength(0);
