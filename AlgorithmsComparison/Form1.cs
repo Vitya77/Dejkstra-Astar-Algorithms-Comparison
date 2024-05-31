@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AlgorithmsComparison
@@ -14,8 +14,6 @@ namespace AlgorithmsComparison
     public partial class Form1 : Form
     {
         private Graph.Graph currentGraph;
-        private Thread dejkstraThread;
-        private Thread aStarThread;
         public Form1()
         {
             InitializeComponent();
@@ -77,23 +75,21 @@ namespace AlgorithmsComparison
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private async void button2_Click(object sender, EventArgs e)
         {
             if (currentGraph != null && int.TryParse(textBox4.Text, out int startVertex) && int.TryParse(textBox3.Text, out int endVertex))
             {
-                if (dejkstraThread == null || !dejkstraThread.IsAlive)
-                {
-                    dejkstraThread = new Thread(() => RunDejkstra(startVertex, endVertex));
-                    dejkstraThread.Start();
-                }
-                if (aStarThread == null || !aStarThread.IsAlive)
-                {
-                    aStarThread = new Thread(() => RunAStar(startVertex, endVertex));
-                    aStarThread.Start();
-                }
+                button2.Enabled = false;
+
+                var dejkstraTask = RunDejkstraAsync(startVertex, endVertex);
+                var aStarTask = RunAStarAsync(startVertex, endVertex);
+
+                await Task.WhenAll(dejkstraTask, aStarTask);
+
+                button2.Enabled = true;
             }
         }
-        private void RunAStar(int startVertex, int endVertex)
+        private async Task RunAStarAsync(int startVertex, int endVertex)
         {
             DrawGraph(pictureBox1.CreateGraphics(), currentGraph);
             try
@@ -102,7 +98,7 @@ namespace AlgorithmsComparison
                 Stopwatch stopwatch = new Stopwatch();
 
                 stopwatch.Start();
-                var paths = currentGraph.AStar(startVertex, endVertex);
+                var paths = await Task.Run(() => currentGraph.AStar(startVertex, endVertex));
                 stopwatch.Stop();
 
                 this.Invoke((MethodInvoker)delegate {
@@ -118,7 +114,7 @@ namespace AlgorithmsComparison
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        private void RunDejkstra(int startVertex, int endVertex)
+        private async Task RunDejkstraAsync(int startVertex, int endVertex)
         {
             DrawGraph(pictureBox2.CreateGraphics(), currentGraph);
             try
@@ -127,7 +123,7 @@ namespace AlgorithmsComparison
                 Stopwatch stopwatch = new Stopwatch();
 
                 stopwatch.Start();
-                var paths = currentGraph.Dejkstra(startVertex, endVertex);
+                var paths = await Task.Run(() => currentGraph.Dejkstra(startVertex, endVertex));
                 stopwatch.Stop();
 
                 this.Invoke((MethodInvoker)delegate {
